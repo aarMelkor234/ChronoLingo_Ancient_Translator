@@ -1,7 +1,7 @@
 import streamlit as st
 import openai
-
 import os
+
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
 # 🏛 ChronoLingo App Settings
@@ -18,7 +18,7 @@ if page == "ChronoLingo Translator":
         ["Sumerian", "Ancient Greek", "Hieroglyphics"]
     )
 
-    # Language info descriptions
+    # Language info descriptions (✅ DO NOT CHANGE)
     language_info = {
         "Sumerian": """Sumerian is the very first language that originated in Ancient Mesopotamia over 5000 years ago. It was used and spoken in Southern Mesopotamia beginning around 3100 BCE. As a spoken langauge, it eventually stopped being used around 2000 BCE, but it continued to be used for writing up until the first century AD. Sumerian is considered an agglutinative language, meaning that words are built by attaching a series of prefixes and suffixes to a root. Sumerian uses the SOV format for word and sentence order, which means that the subject comes first, followed by the object, and then the verb. The language played a key role in early Mesopotamian culture; it was used for everything from keeping administrative records to legal documents and even religious texts and literature. One of the most famous works in Ancient History, the Epic of Gilgamesh, was first drafted in Sumerian as literature.""",
 
@@ -27,53 +27,36 @@ if page == "ChronoLingo Translator":
         "Hieroglyphics": """Hieroglyphics is a system of complex illustrations created by the Ancient Egyptians over 5000 years ago. They consisted of several illustrations such as waves, human figures, and birds combined to form a complete sentence/thought. They originated during the Pre-dynastic era around 3200 BCE and were used all the way up until the end of Roman Occupation in Egypt in the 3rd century AD. Hieroglyphs were typically carved in Egyptian temple complexes and in funerary complexes as well. The most notable of these carvings are the ones carved at the Karnak Temple Complex in Luxor. Later, Hieroglyphs developed into a verbally written system of cursive script called Hieratic. This was used only in the government as a way of managing taxes, planned buildings, and workloads."""
     }
 
-    # Show description
     st.header(f"Current Language: {language}")
     st.subheader(f"Language Origins: {language_info[language]}")
 
-    # 🔤 Two side-by-side columns for input and output
+    # Translation direction toggle
+    direction = st.radio("Translation Direction", ["English → Ancient", "Ancient → English"], horizontal=True)
+
     col1, col2 = st.columns(2)
 
     with col1:
-        st.subheader("Enter English Text")
+        st.subheader("Input Text")
         user_input = st.text_area("Input", height=300, label_visibility="collapsed")
 
     with col2:
-        st.subheader(f"{language} Translation")
+        st.subheader("Translated Output")
         output_placeholder = st.empty()
 
-    # 🔁 Unified Translation Button
-    if st.button(f"Translate to {language}"):
+    # Translation button
+    if st.button("Translate"):
         if user_input.strip() != "":
             with st.spinner("Translating..."):
                 try:
-                    # 🔍 Tailored prompts per language with sample sentence
-                    if language == "Sumerian":
-                        prompt = f"""You are an expert in Sumerian grammar and translation. Use authentic transliteration, SOV word order, and agglutinative structure. Do not explain anything. Only return the translation.
-
-Example:  
-\"I am Aarav\" → Aarav-e me-en
-
-Translate this to Ancient Sumerian:  
-\"{user_input}\""""                       
-
-                    elif language == "Ancient Greek":
-                        prompt = f"""You are an expert in Ancient Greek grammar. Use Attic Greek with correct verb conjugation, noun cases, and diacritics. Only return the Ancient Greek translation. Do not explain anything.
-
-Example:  
-"I am Aarav" → Εῐμὶ Ἀἀραβ
-
-Translate this to Ancient Greek:  
-\"{user_input}\""""
-
-                    elif language == "Hieroglyphics":
-                        prompt = f"""You are an expert in Egyptian hieroglyphs. Return only Unicode hieroglyphs (from block U+13000–U+1342F), no transliterations or explanations.
-
-Example:  
-\"I am Aarav\" → [𓃋𓷵𒠿 𒠿𒡝𒠿𒡯]
-
-Translate this to Egyptian Hieroglyphs:  
-\"{user_input}\""""
+                    if direction == "English → Ancient":
+                        if language == "Sumerian":
+                            prompt = f"""You are an expert in Sumerian grammar and translation. Use authentic transliteration, SOV word order, and agglutinative structure. Do not explain anything. Only return the translation.\n\nTranslate this to Ancient Sumerian:\n\"{user_input}\""""  
+                        elif language == "Ancient Greek":
+                            prompt = f"""You are an expert in Ancient Greek grammar. Use Attic Greek with correct verb conjugation, noun cases, and diacritics. Only return the Ancient Greek translation.\n\nTranslate this to Ancient Greek:\n\"{user_input}\""""
+                        elif language == "Hieroglyphics":
+                            prompt = f"""You are an expert in Egyptian hieroglyphs. Return only Unicode hieroglyphs (from block U+13000–U+1342F), no transliterations or explanations.\n\nTranslate this to Egyptian Hieroglyphs:\n\"{user_input}\""""
+                    else:
+                        prompt = f"""You are an expert in ancient languages. Translate the following {language} text to English. Do not explain anything.\n\nText:\n\"{user_input}\"""" 
 
                     response = openai.ChatCompletion.create(
                         model="gpt-4",
@@ -87,14 +70,12 @@ Translate this to Egyptian Hieroglyphs:
 
                     translation = response["choices"][0]["message"]["content"].strip()
 
-                    output_placeholder.text_area(
-                        "Output", value=translation, height=300, label_visibility="collapsed", disabled=True
-                    )
+                    output_placeholder.text_area("Output", value=translation, height=300, label_visibility="collapsed", disabled=True)
 
                 except Exception as e:
                     output_placeholder.error(f"❌ Error: {e}")
         else:
-            output_placeholder.warning("Please enter some English text to translate.")
+            output_placeholder.warning("Please enter some text to translate.")
 
 elif page == "Ancient Text Analyzer":
     st.title("📜 Ancient Text Analyzer")
