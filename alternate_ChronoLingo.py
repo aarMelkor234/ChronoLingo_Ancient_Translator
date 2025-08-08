@@ -50,7 +50,11 @@ if page == "ChronoLingo Translator":
                 try:
                     if direction == "English → Ancient":
                         if language == "Sumerian":
-                            prompt = f"""You are an expert in Sumerian grammar and translation. Use authentic transliteration, SOV word order, and agglutinative structure. Do not explain anything. Only return the translation.\n\nTranslate this to Ancient Sumerian:\n\"{user_input}\""""  
+                            prompt = f"""You are an expert in Sumerian grammar and translation. Use authentic transliteration, SOV word order, and agglutinative structure. Do not explain anything. Only return the translation. - Only provide the Sumerian transliteration, nothing else.
+- Do not include glosses, linguistic notation, or explanations.
+- Use proper Sumerian grammar and word order.
+- For modern names (e.g., "Aarav"), leave them as-is.
+- For the phrase "I am [Name]", use the copula "me-en" appropriately.\n\nTranslate this to Ancient Sumerian:\n\"{user_input}\""""  
                         elif language == "Ancient Greek":
                             prompt = f"""You are an expert in Ancient Greek grammar. Use Attic Greek with correct verb conjugation, noun cases, and diacritics. Only return the Ancient Greek translation.\n\nTranslate this to Ancient Greek:\n\"{user_input}\""""
                         elif language == "Hieroglyphics":
